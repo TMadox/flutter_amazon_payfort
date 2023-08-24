@@ -154,7 +154,7 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
                 faild: { requestDic, responeDic, message in
                     
                     print("failed: \(message) - \(requestDic) - \(responeDic)")
-                    self.channel?.invokeMethod("apple_pay_failed", arguments: ["message": message])
+                    self.channel?.invokeMethod("apple_pay_failed", arguments: ["message": "failed: \(message) - \(requestDic) - \(responeDic)"])
                     controller.dismiss(animated: true)
                     return
                     
