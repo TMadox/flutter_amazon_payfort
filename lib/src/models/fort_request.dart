@@ -105,7 +105,7 @@ class FortRequest {
   }
 
   Map<String, dynamic> asMap() {
-    final Map<String, dynamic> outMap = <String, dynamic>{
+    Map<String, dynamic> outMap = <String, dynamic>{
       'amount': '$amount',
       'customer_name': customerName,
       'customer_email': customerEmail,
