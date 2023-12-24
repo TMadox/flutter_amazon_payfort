@@ -60,11 +60,14 @@ This plugin requires several changes to be able to work on Android devices. Plea
 
 Compatible with apps targeting iOS 12 or above.
 
-To upgrade your iOS deployment target to 12.0, you can either do so in Xcode under your Build Settings, or by modifying IPHONEOS_DEPLOYMENT_TARGET in your project.pbxproj directly.
+To upgrade your iOS deployment target to `12.0`, you can either do so in Xcode under your Build Settings, or by modifying `IPHONEOS_DEPLOYMENT_TARGET` in your project.pbxproj directly.
 
 You will also need to update in your Podfile:
 
-`platform :ios, '12.0'`
+```ruby
+platform :ios, '12.0'
+```
+
 
 ## Payfort initialization
 
@@ -83,12 +86,49 @@ Future<void> callPayFort(...);
 Future<void> callPayFortForApplePay(...);
 ```
 
+## Specify ProGuard rules (Only for Android)
+
+- Open the `build.gradle` file for the module (usually `app`) in which you want to enable ProGuard.
+- Add the following lines to the android block in the `build.gradle` file:
+  ```gradle
+  android {
+    ...
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    ...
+  }
+  ```
+  This snippet enables ProGuard for the release build type.
+- Create a file named `proguard-rules.pro` in the `app` module directory. This file contains the rules for ProGuard.
+- Copy rules from below url and paste in your `proguard-rules.pro` file.
+
+  ProGuard Rules: [https://github.com/vvvirani/flutter_amazon_payfort/blob/main/android/proguard-rules.pro](https://github.com/vvvirani/flutter_amazon_payfort/blob/main/android/proguard-rules.pro)
+  
 ## Run the example app
 
-- Navigate to the example folder `cd example`
+- Navigate to the example folder `cd dyscan_example`
 - Install the dependencies
   - `flutter pub get`
+- Run the project
+  - `flutter run`
 
-## Contributing
+
+## Contributing & Donate
 
 You can help us make this project better, feel free to open an new issue or a pull request.
+
+If you found this project helpful or you learned something from the source code and want to thank me, consider buying me a cup of coffee
+
+<a href="https://www.buymeacoffee.com/vvvirani"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="80"></a>
+
+<a href="https://www.paypal.com/vvvirani"><img src="https://www.edigitalagency.com.au/wp-content/uploads/new-PayPal-Logo-horizontal-full-color-png.png" height="75"></a>
+
+
+## Author
+
+This `AmazonPayfort` plugin for Flutter is developed by [V Developer](https://github.com/vvvirani). You can contact us at <vvvirani@gmail.com>
+

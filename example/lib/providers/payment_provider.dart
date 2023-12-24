@@ -24,9 +24,15 @@ class PaymentProvider extends DefaultChangeNotifier {
     required CancelledCallback onCancelled,
   }) async {
     try {
-      var sdkTokenResponse = await _generateSdkToken();
+      SdkTokenResponse? sdkTokenResponse = await _generateSdkToken();
+
+      if (sdkTokenResponse != null && sdkTokenResponse.sdkToken == null) {
+        onFailed(sdkTokenResponse.responseMessage ?? '');
+        return;
+      }
 
       /// Step 4: Processing Payment [Amount multiply with 100] ex. 10 * 100 = 1000 (10 SAR)
+      /// Amount value send always round ex. [100] not [100.00, 100.21]
       FortRequest request = FortRequest(
         amount: 10 * 100,
         customerName: 'Test Customer',
@@ -56,9 +62,16 @@ class PaymentProvider extends DefaultChangeNotifier {
     required FailedCallback onFailed,
   }) async {
     try {
-      var sdkTokenResponse = await _generateSdkToken(isApplePay: true);
+      SdkTokenResponse? sdkTokenResponse =
+          await _generateSdkToken(isApplePay: true);
+
+      if (sdkTokenResponse != null && sdkTokenResponse.sdkToken == null) {
+        onFailed(sdkTokenResponse.responseMessage ?? '');
+        return;
+      }
 
       /// Step 4: Processing Payment [Don't multiply with 100]
+      /// Amount value send always round ex. [100] not [100.00, 100.21]
       FortRequest request = FortRequest(
         amount: 1000,
         customerName: 'Test Customer',

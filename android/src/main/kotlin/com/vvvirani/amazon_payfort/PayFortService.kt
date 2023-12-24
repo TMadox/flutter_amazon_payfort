@@ -15,6 +15,8 @@ import java.security.NoSuchAlgorithmException
 
 class PayFortService {
 
+     val payfortRequestCode = 1166
+
     private var options: PayFortOptions? = null
 
     private var channel: MethodChannel? = null
@@ -32,20 +34,23 @@ class PayFortService {
         this.channel = channel
     }
 
-    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        fortCallback?.onActivityResult(requestCode, resultCode, data)
+    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        if (fortCallback != null) {
+            fortCallback?.onActivityResult(requestCode, resultCode, data)
+        }
+
     }
 
     fun callPayFort(
         activity: Activity,
         fortRequest: FortRequest,
-        ) {
+    ) {
         fortRequest.isShowResponsePage = options?.isShowResponsePage ?: true
         try {
             FortSdk.getInstance().registerCallback(
                 activity,
                 fortRequest,
-                getEnvironment(options?.environment), 5,
+                getEnvironment(options?.environment), payfortRequestCode,
                 fortCallback,
                 options?.showLoading ?: true,
                 object : FortInterfaces.OnTnxProcessed {
@@ -96,7 +101,7 @@ class PayFortService {
         }
     }
 
-    fun createSignature(shaType: String, concatenatedString: String): String {
+    fun createSignature(shaType: String, concatenatedString: String): String? {
         try {
             val bytes = concatenatedString.toByteArray()
             val md = MessageDigest.getInstance(shaType)
@@ -105,7 +110,7 @@ class PayFortService {
         } catch (e: NoSuchAlgorithmException) {
             Log.d("Signature Error", e.toString())
         }
-        return ""
+        return null
     }
 
 }

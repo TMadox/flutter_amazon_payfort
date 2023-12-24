@@ -1,7 +1,8 @@
 package com.vvvirani.amazon_payfort
 
+import android.app.Activity.RESULT_OK
 import android.content.Context
-import androidx.annotation.NonNull
+import android.content.Intent
 import com.payfort.fortpaymentsdk.FortSdk
 import com.payfort.fortpaymentsdk.domain.model.FortRequest
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -22,44 +23,47 @@ class AmazonPayfortPlugin : FlutterPlugin,
     private var fortRequest = FortRequest()
     private var service: PayFortService = PayFortService()
 
-    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger,
-            "vvvirani/amazon_payfort")
+    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        channel = MethodChannel(
+            flutterPluginBinding.binaryMessenger,
+            "vvvirani/amazon_payfort"
+        )
         channel.setMethodCallHandler(this)
         context = flutterPluginBinding.applicationContext
     }
 
-    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: MethodChannel.Result) {
+    override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "initialize" -> {
                 try {
                     val options = processPayFortOptions(call)
                     service.initService(channel, options)
-                    binding.addActivityResultListener { requestCode, resultCode, data ->
-                        service.onActivityResult(requestCode, resultCode, data)
-                        true
-                    }
                     result.success(true)
                 } catch (e: Exception) {
                     result.success(false)
                 }
             }
+
             "getDeviceId" -> {
                 val deviceId = FortSdk.getDeviceId(binding.activity)
                 result.success(deviceId)
             }
+
             "generateSignature" -> {
                 val shaType = call.argument<String>("shaType")
                 val concatenatedString = call.argument<String>("concatenatedString")
                 val signature =
                     shaType?.let {
                         concatenatedString?.let { it1 ->
-                            service.createSignature(it,
-                                it1)
+                            service.createSignature(
+                                it,
+                                it1
+                            )
                         }
                     }
                 result.success(signature)
             }
+
             "callPayFort" -> {
                 fortRequest.requestMap = createRequestMap(call)
                 service.callPayFort(
@@ -67,13 +71,14 @@ class AmazonPayfortPlugin : FlutterPlugin,
                     fortRequest
                 )
             }
+
             else -> {
                 result.notImplemented()
             }
         }
     }
 
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
     }
 
@@ -106,6 +111,17 @@ class AmazonPayfortPlugin : FlutterPlugin,
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         this.binding = binding
+        binding.addActivityResultListener { requestCode: Int, resultCode: Int, data: Intent? ->
+            if (requestCode == service.payfortRequestCode) if (data != null && resultCode == RESULT_OK) service.onActivityResult(
+                requestCode,
+                resultCode,
+                data
+            ) else {
+                val intent = Intent()
+                intent.putExtra("", "")
+            }
+            true
+        }
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
@@ -113,6 +129,18 @@ class AmazonPayfortPlugin : FlutterPlugin,
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         this.binding = binding
+        binding.addActivityResultListener { requestCode: Int, resultCode: Int, data: Intent? ->
+            if (requestCode == service.payfortRequestCode) if (data != null && resultCode == RESULT_OK) service.onActivityResult(
+                requestCode,
+                resultCode,
+                data
+            ) else {
+                val intent = Intent()
+                intent.putExtra("", "")
+                service.onActivityResult(requestCode, resultCode, intent)
+            }
+            true
+        }
     }
 
     override fun onDetachedFromActivity() {
