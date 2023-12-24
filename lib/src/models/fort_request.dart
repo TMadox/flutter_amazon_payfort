@@ -105,7 +105,7 @@ class FortRequest {
   }
 
   Map<String, dynamic> asMap() {
-    return <String, dynamic>{
+    final Map<String, dynamic> outMap = <String, dynamic>{
       'amount': '$amount',
       'customer_name': customerName,
       'customer_email': customerEmail,
@@ -120,5 +120,7 @@ class FortRequest {
       'eci': eci,
       'phone_number': phoneNumber,
     };
+    outMap.removeWhere((key, value) => value == null);
+    return outMap;
   }
 }
