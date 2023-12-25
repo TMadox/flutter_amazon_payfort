@@ -133,7 +133,9 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
             request["order_description"] = (requestData?["order_description"] as? String) ?? "";
             request["customer_ip"] = (requestData?["customer_ip"] as? String) ?? "";
             request["customer_name"] = (requestData?["customer_name"] as? String) ?? "";
-            request["token_name"] = (requestData?["token_name"] as? String) ?? "";
+            if (request["token_name"] != nil) {
+                 request["token_name"] = (requestData?["token_name"] as? String) ?? "";
+            }
             request["phone_number"] = (requestData?["phone_number"] as? String) ?? "";
             
             payFort?.hideLoading = options?.hideLoading ?? false
